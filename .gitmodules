@@ -1,0 +1,3 @@
+[submodule "Grabber"]
+	path = Grabber
+	url = https://github.com/Reedus0/GrabberFramework

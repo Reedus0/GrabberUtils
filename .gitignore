@@ -1,0 +1,5 @@
+log.txt
+samples
+*.so
+*.o
+.env
