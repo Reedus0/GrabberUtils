@@ -1,14 +1,15 @@
 import re
 
-from ..extractor import Extractor
-from ..sample import Sample
-from ..regex import Regex
+from Grabber.config.sample import Sample
+from Grabber.config.extractor import Extractor
+from Grabber.config.regex import Regex
 
 
 def njrat():
     def extract(sample: Sample, regex_result: re.Match):
         data = sample.getData()
-        nullmatch: re.Match[bytes] | None = re.search(b'\x00\x00', data[regex_result.start():])
+        nullmatch: re.Match[bytes] | None = re.search(
+            b'\x00\x00', data[regex_result.start():])
 
         if (not nullmatch):
             return

@@ -13,7 +13,7 @@ from Grabber.download.ha import HybridAnalysisDownloader
 def download_sample(hash):
     abuse = AbuseDownloader(os.environ["ABUSE_API_KEY"])
     yarify = YarifyDownloader(os.environ["ABUSE_API_KEY"])
-    ha = HybridAnalysisDownloader(os.environ["HybridAnalysis_API_KEY"])
+    ha = HybridAnalysisDownloader(os.environ["HYBRID_ANALYSIS_API_KEY"])
 
     downloaders = [abuse, yarify, ha]
 

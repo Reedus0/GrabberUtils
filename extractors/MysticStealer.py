@@ -1,13 +1,14 @@
 import re
 
-from ..extractor import Extractor
-from ..sample import Sample
-from ..regex import Regex
+from Grabber.config.sample import Sample
+from Grabber.config.extractor import Extractor
+from Grabber.config.regex import Regex
 
 
 def MysticStealer():
     def decrypt(sample: Sample, regex_result: re.Match):
-        physical_address = sample.getPhysicalAddress(int.from_bytes(regex_result[1], "little"))
+        physical_address = sample.getPhysicalAddress(
+            int.from_bytes(regex_result[1], "little"))
         ecnrypted_config = sample.readBytesString(physical_address)
         print(ecnrypted_config)
 

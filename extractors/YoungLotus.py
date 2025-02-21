@@ -1,5 +1,5 @@
-from ..extractor import Extractor
-from ..regex import Regex
+from Grabber.config.extractor import Extractor
+from Grabber.config.regex import Regex
 
 
 def YoungLotus():

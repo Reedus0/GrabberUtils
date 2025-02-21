@@ -1,24 +1,25 @@
 import re
 import ctypes
 
-from ..extractor import Extractor
-from ..sample import Sample
-from ..regex import Regex
+from Grabber.config.sample import Sample
+from Grabber.config.extractor import Extractor
+from Grabber.config.regex import Regex
 
 from Cryptodome.Cipher import ARC4
 
 
 def SmokeLoader(lib_path: str):
 
-    def decompress(buffer):
+    def decompress_final_stage(buffer):
         if (buffer[-1] != 0xE8 and buffer[-1] != 0xEE):
             return []
         if (buffer[-1] == 0xEE):
             buffer[-1] = 0xE8
-            
+
         lzsa = ctypes.CDLL(lib_path + "/" + "lzsa.so")
 
-        lzsa.lzsa2_decompress.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_char)]
+        lzsa.lzsa2_decompress.argtypes = [ctypes.POINTER(
+            ctypes.c_char), ctypes.POINTER(ctypes.c_char)]
 
         pointer_buffer = (ctypes.c_char * len(buffer))(*buffer)
         pointer_out = (ctypes.c_char * 0x40000)()
@@ -30,19 +31,33 @@ def SmokeLoader(lib_path: str):
 
         return pointer_out[:]
 
-    def decrypt_strings(data, strings_start):
-        key = bytes(data[strings_start:strings_start + 4])
-        offset = strings_start + 4
+    def get_xor_key(sample: Sample):
+        original_data = sample.getData()
 
-        for i in range(20):
-            string_length = data[offset]
+        xor_key = 0
 
-            string = bytes(data[offset + 1:offset + string_length + 1])
-            offset += string_length + 1
+        for i in range(255):
+            sample.setData(bytearray([x ^ i for x in original_data]))
+            xor_key_extractor.extract(sample)
+            xor_key = xor_key_extractor.getResult()["xor_key"]
+            if (xor_key):
+                break
+        else:
+            sample.setData(original_data)
+            return
 
-            cipher = ARC4.new(key)
-            msg = cipher.decrypt(string)
-            print(msg)
+        sample.setData(original_data)
+        return xor_key
+
+    xor_key = Regex(
+        "xor_key",
+        "int32",
+        (
+            b"\\xBA(.{4})"
+            b"\\x8B\\x4D\\x0C"
+        ))
+
+    xor_key_extractor = Extractor("xor_key", [xor_key])
 
     def get_final_stage(sample: Sample, regex_result: re.Match):
         if (regex_result):
@@ -63,17 +78,7 @@ def SmokeLoader(lib_path: str):
 
     final_stage_extractor = Extractor("final_stage", [final_stage])
 
-    xor_key = Regex(
-        "xor_key",
-        "int32",
-        (
-            b"\\xBA(.{4})"
-            b"\\x8B\\x4D\\x0C"
-        ))
-
-    xor_key_extractor = Extractor("xor_key", [xor_key])
-
-    def decrypt(sample: Sample, regex_result: re.Match):
+    def decrypt_final_stage(sample: Sample):
         original_data = sample.getData()
 
         final_stage = []
@@ -85,48 +90,76 @@ def SmokeLoader(lib_path: str):
             if (final_stage):
                 break
         else:
+            sample.setData(original_data)
             return
 
-        final_offset = final_stage[0]
-        final_size = final_stage[1]
+        sample.setData(original_data)
 
-        xor_key = 0
+        return final_stage
 
-        for i in range(255):
-            sample.setData(bytearray([x ^ i for x in original_data]))
-            xor_key_extractor.extract(sample)
-            xor_key = xor_key_extractor.getResult()["xor_key"]
-            if (xor_key):
-                break
+    def extract_final_stage(sample: Sample, xor_key: int, offset: int, size: int):
+        original_data = sample.getData()
 
-        final_data = []
+        final_stage = []
 
         bytes_key = xor_key.to_bytes(4, byteorder="little")
-        physical_offset = sample.getPhysicalAddress(0x400000 + final_offset)
+        physical_offset = sample.getPhysicalAddress(0x400000 + offset)
 
-        for i in range(final_size):
-            final_data.append(original_data[physical_offset + i] ^ bytes_key[i % len(bytes_key)])
+        for i in range(size):
+            final_stage.append(
+                original_data[physical_offset + i] ^ bytes_key[i % len(bytes_key)])
 
-        with open("out", "wb") as file:
-            file.write(bytes(final_data))
+        return final_stage
 
-        decompressed_data = decompress(final_data[4:])
+    def get_c2_url(sample: Sample, regex_result: re.Match):
+        original_data = sample.getData()
 
-        strings_start = 0
+        result = []
 
-        for i in range(len(decompressed_data)):
-            key = bytes(decompressed_data[i:i + 4])
-            data = bytes(decompressed_data[i + 5: i + 9])
+        negative_offset = int.from_bytes(regex_result[1], "little")
+        offset = regex_result.start() - (0xFFFFFFFF - negative_offset) + 6
 
-            cipher = ARC4.new(key)
-            msg = cipher.decrypt(data)
-            if (msg == b"http"):
-                strings_start = i
-                break
-        else:
-            return ""
+        for i in range(original_data[offset]):
+            result.append(original_data[offset + i + 5])
 
-        decrypt_strings(decompressed_data, strings_start)
+        cipher = ARC4.new(bytearray(original_data[offset + 1:offset + 5]))
+        msg = cipher.decrypt(bytearray(result))
+        return msg.decode()
+
+    c2_url = Regex(
+        "c2_url",
+        "custom",
+        (
+            b"\\x48\\x8D\\x15(.{4})"
+            b"\\x48\\x8B\\xCF"
+        ),
+        get_c2_url)
+
+    c2_url_extractor = Extractor("c2_url", [c2_url])
+
+    def decrypt(sample: Sample, regex_result: re.Match):
+        final_stage = decrypt_final_stage(sample)
+
+        if (not final_stage):
+            return
+
+        offset, size = final_stage[0], final_stage[1]
+
+        xor_key = get_xor_key(sample)
+
+        if (not xor_key):
+            return
+
+        extracted_stage = extract_final_stage(sample, xor_key, offset, size)
+        decompressed_data = decompress_final_stage(extracted_stage[4:])
+
+        decompressed_sample = Sample()
+        decompressed_sample.setData(bytearray(decompressed_data))
+
+        c2_url_extractor.extract(decompressed_sample)
+        c2_url = c2_url_extractor.getResult()["c2_url"]
+
+        return c2_url
 
     c2 = Regex(
         "c2",
@@ -137,3 +170,48 @@ def SmokeLoader(lib_path: str):
         decrypt)
 
     return Extractor("SmokeLoader", [c2])
+
+# https://dns.google/resolve?name=microsoft.com
+# Software\Microsoft\Internet Explorer
+# advapi32.dll
+# Location:
+# plugin_size
+# user32
+# advapi32
+# urlmon
+# ole32
+# winhttp
+# ws2_32
+# dnsapi
+# shell32
+# shlwapi
+# svcVersion
+# Version
+# .bit
+# %sFF
+# %02x
+# %s%08X%08X
+# %s\%hs
+# %s%s
+# regsvr32 /s %s
+# %APPDATA%
+# %TEMP%
+# .exe
+# .dll
+# .bat
+# :Zone.Identifier
+# POST
+# Content-Type: application/x-www-form-urlencoded
+# open
+# Host: %s
+# PT10M
+# 1999-11-30T00:00:00
+# Firefox Default Browser Agent %hs
+# Accept: */*
+# Referer: http://%S%s/
+# Accept: */*
+# Referer: https://%S%s/
+# .com
+# .org
+# .net
+# explorer.exe

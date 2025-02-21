@@ -1,8 +1,8 @@
 import re
 
-from ..extractor import Extractor
-from ..sample import Sample
-from ..regex import Regex
+from Grabber.config.sample import Sample
+from Grabber.config.extractor import Extractor
+from Grabber.config.regex import Regex
 
 
 def ValleyRAT64():
@@ -10,7 +10,8 @@ def ValleyRAT64():
     def parse_config(sample: Sample, regex_result: re.Match):
         virutal_address = sample.getVirtualAddress(regex_result.start(1))
         virutal_address += int.from_bytes(regex_result[1], "little") + 4
-        offset = sample.getPhysicalAddress(int.from_bytes(virutal_address, "little"))
+        offset = sample.getPhysicalAddress(
+            int.from_bytes(virutal_address, "little"))
         return sample.readASCIIString(offset)[::-1]
 
     config_regex = Regex(

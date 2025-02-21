@@ -4,9 +4,9 @@ import binascii
 import hashlib
 from Cryptodome.Cipher import AES
 
-from ..extractor import Extractor
-from ..sample import Sample
-from ..regex import Regex
+from Grabber.config.sample import Sample
+from Grabber.config.extractor import Extractor
+from Grabber.config.regex import Regex
 
 
 def XWorm():
