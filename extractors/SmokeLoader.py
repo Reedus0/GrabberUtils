@@ -11,10 +11,11 @@ from Cryptodome.Cipher import ARC4
 def SmokeLoader(lib_path: str):
 
     def decompress_final_stage(buffer):
-        if (buffer[-1] != 0xE8 and buffer[-1] != 0xEE):
+        allowed_bytes = [0xE8, 0xEE, 0x31]
+
+        if (buffer[-1] not in allowed_bytes):
             return []
-        if (buffer[-1] == 0xEE):
-            buffer[-1] = 0xE8
+        buffer[-1] = 0xE8
 
         lzsa = ctypes.CDLL(lib_path + "/" + "lzsa.so")
 
@@ -155,7 +156,7 @@ def SmokeLoader(lib_path: str):
 
         decompressed_sample = Sample()
         decompressed_sample.setData(bytearray(decompressed_data))
-
+        
         c2_url_extractor.extract(decompressed_sample)
         c2_url = c2_url_extractor.getResult()["c2_url"]
 
