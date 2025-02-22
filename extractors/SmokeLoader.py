@@ -112,6 +112,54 @@ def SmokeLoader(lib_path: str):
 
         return final_stage
 
+    def decrypt(sample: Sample):
+        final_stage = decrypt_final_stage(sample)
+
+        if (not final_stage):
+            return
+
+        offset, size = final_stage[0], final_stage[1]
+
+        xor_key = get_xor_key(sample)
+
+        if (not xor_key):
+            return
+
+        extracted_stage = extract_final_stage(sample, xor_key, offset, size)
+        decompressed_data = decompress_final_stage(extracted_stage[4:])
+
+        decompressed_sample = Sample()
+        decompressed_sample.setData(bytearray(decompressed_data))
+
+        return decompressed_sample
+
+    rc4_encrypt_key = Regex(
+        "rc4_encrypt_key",
+        "int32",
+        (
+            b"\\x44\\x8B\\xC7"
+            b"\\xC7\\x44\\x24\\x40(.{4})"
+            b"\\xE8.{4}"
+        ))
+
+    rc4_encrypt_key_extractor = Extractor("rc4_encrypt_key", [rc4_encrypt_key])
+
+    def get_encrypt_key(sample: Sample, regex_result: re.Match):
+        decompressed_sample = decrypt(sample)
+
+        rc4_encrypt_key_extractor.extract(decompressed_sample)
+        encrypt_key = rc4_encrypt_key_extractor.getResult()["rc4_encrypt_key"]
+
+        return encrypt_key
+
+    encrypt_key = Regex(
+        "rc4_encrypt_key",
+        "custom",
+        (
+            b"(.)"
+        ),
+        get_encrypt_key)
+
     def get_c2_url(sample: Sample, regex_result: re.Match):
         original_data = sample.getData()
 
@@ -138,25 +186,9 @@ def SmokeLoader(lib_path: str):
 
     c2_url_extractor = Extractor("c2_url", [c2_url])
 
-    def decrypt(sample: Sample, regex_result: re.Match):
-        final_stage = decrypt_final_stage(sample)
+    def get_c2(sample: Sample, regex_result: re.Match):
+        decompressed_sample = decrypt(sample)
 
-        if (not final_stage):
-            return
-
-        offset, size = final_stage[0], final_stage[1]
-
-        xor_key = get_xor_key(sample)
-
-        if (not xor_key):
-            return
-
-        extracted_stage = extract_final_stage(sample, xor_key, offset, size)
-        decompressed_data = decompress_final_stage(extracted_stage[4:])
-
-        decompressed_sample = Sample()
-        decompressed_sample.setData(bytearray(decompressed_data))
-        
         c2_url_extractor.extract(decompressed_sample)
         c2_url = c2_url_extractor.getResult()["c2_url"]
 
@@ -168,9 +200,9 @@ def SmokeLoader(lib_path: str):
         (
             b"(.)"
         ),
-        decrypt)
+        get_c2)
 
-    return Extractor("SmokeLoader", [c2])
+    return Extractor("SmokeLoader", [c2, encrypt_key])
 
 # https://dns.google/resolve?name=microsoft.com
 # Software\Microsoft\Internet Explorer
