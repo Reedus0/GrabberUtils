@@ -8,7 +8,7 @@ from Grabber.config.regex import Regex
 from Cryptodome.Cipher import ARC4
 
 
-def SmokeLoader(lib_path: str):
+def ExtractSmokeLoader(lib_path: str):
 
     def decompress_final_stage(buffer):
         allowed_bytes = [0xE8, 0xEE, 0x31]
@@ -112,7 +112,7 @@ def SmokeLoader(lib_path: str):
 
         return final_stage
 
-    def decrypt(sample: Sample):
+    def decrypt(sample: Sample, regex_result: re.Match):
         final_stage = decrypt_final_stage(sample)
 
         if (not final_stage):
@@ -133,32 +133,34 @@ def SmokeLoader(lib_path: str):
 
         return decompressed_sample
 
-    rc4_encrypt_key = Regex(
-        "rc4_encrypt_key",
-        "int32",
-        (
-            b"\\x44\\x8B\\xC7"
-            b"\\xC7\\x44\\x24\\x40(.{4})"
-            b"\\xE8.{4}"
-        ))
-
-    rc4_encrypt_key_extractor = Extractor("rc4_encrypt_key", [rc4_encrypt_key])
-
-    def get_encrypt_key(sample: Sample, regex_result: re.Match):
-        decompressed_sample = decrypt(sample)
-
-        rc4_encrypt_key_extractor.extract(decompressed_sample)
-        encrypt_key = rc4_encrypt_key_extractor.getResult()["rc4_encrypt_key"]
-
-        return encrypt_key
-
-    encrypt_key = Regex(
-        "rc4_encrypt_key",
+    extract = Regex(
+        "extracted_sample",
         "custom",
         (
             b"(.)"
         ),
-        get_encrypt_key)
+        decrypt)
+
+    return Extractor("ExtractSmokeLoader", [extract])
+
+
+def SmokeLoader():
+
+    decrypt_key = Regex(
+        "rc4_decrypt_key",
+        "int32",
+        (
+            b"\\xC7\\x45\\x8F(.{4})"
+            b"\\xE8.{4}"
+        ))
+
+    encrypt_key = Regex(
+        "rc4_encrypt_key",
+        "int32",
+        (
+            b"\\xC7\\x44\\x24\\x40(.{4})"
+            b"\\xE8.{4}"
+        ))
 
     def get_c2_url(sample: Sample, regex_result: re.Match):
         original_data = sample.getData()
@@ -175,8 +177,8 @@ def SmokeLoader(lib_path: str):
         msg = cipher.decrypt(bytearray(result))
         return msg.decode()
 
-    c2_url = Regex(
-        "c2_url",
+    c2 = Regex(
+        "c2",
         "custom",
         (
             b"\\x48\\x8D\\x15(.{4})"
@@ -184,25 +186,8 @@ def SmokeLoader(lib_path: str):
         ),
         get_c2_url)
 
-    c2_url_extractor = Extractor("c2_url", [c2_url])
+    return Extractor("SmokeLoader", [c2, encrypt_key, decrypt_key])
 
-    def get_c2(sample: Sample, regex_result: re.Match):
-        decompressed_sample = decrypt(sample)
-
-        c2_url_extractor.extract(decompressed_sample)
-        c2_url = c2_url_extractor.getResult()["c2_url"]
-
-        return c2_url
-
-    c2 = Regex(
-        "c2",
-        "custom",
-        (
-            b"(.)"
-        ),
-        get_c2)
-
-    return Extractor("SmokeLoader", [c2, encrypt_key])
 
 # https://dns.google/resolve?name=microsoft.com
 # Software\Microsoft\Internet Explorer

@@ -3,10 +3,8 @@ import os
 from Grabber.config.sample import Sample
 
 from extractors.LeprechaunVNC import LeprechaunVNC
-from extractors.ValleyRAT64 import ValleyRAT64
-from extractors.MysticStealer import MysticStealer
 from extractors.XWorm import XWorm
-from extractors.SmokeLoader import SmokeLoader
+from extractors.SmokeLoader import SmokeLoader, ExtractSmokeLoader
 from extractors.njrat import njrat
 
 from Grabber.logs.logger import initLogging, log
@@ -67,13 +65,21 @@ def main():
         files.extend(filenames)
         break
 
-    extractor = SmokeLoader(os.environ["LIB_PATH"])
+    last_stage_extractor = ExtractSmokeLoader(os.environ["LIB_PATH"])
+    extractor = SmokeLoader()
     log(10, "Running extractor...")
     total = 0
 
     for file in files:
         sample = Sample(os.environ["SAMPLE_PATH"] + "/" + file)
         log(10, "Sample: " + file)
+        
+        last_stage_extractor.extract(sample)
+        sample = last_stage_extractor.getResult()["extracted_sample"]
+
+        if (not sample):
+            continue
+
         extractor.extract(sample)
         result = extractor.getResult()
 

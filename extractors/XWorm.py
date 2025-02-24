@@ -28,7 +28,7 @@ def XWorm():
                 break
         try:
             mutex = strings[-1]
-        except:
+        except IndexError:
             return ""
 
         md5 = hashlib.md5(mutex.encode()).digest()
@@ -41,7 +41,7 @@ def XWorm():
         try:
             decrypted_result = cipher.decrypt(bytes(result)).decode()
             decrypted_result = re.sub(r'[^\x20-\x7f]', r'', decrypted_result)
-        except:
+        except UnicodeDecodeError:
             return ""
 
         return decrypted_result
