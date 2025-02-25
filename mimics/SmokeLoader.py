@@ -15,6 +15,22 @@ class SmokeLoaderMimic(Mimic):
         "c2", "botnet_id", "rc4_encrypt_key", "rc4_decrypt_key"]
 
     def formPacket(self, command: int, command_option: int | None = None) -> bytes:
+        """
+        struct packet
+        {
+            u16 magic;
+            u8 bot_id[41];
+            u8 pc_name[16];
+            u8 botnet_id[6];
+            u8 win_ver;
+            u8 win_bit;
+            u8 bot_priv;
+            u16 command_id;
+            u32 command_option;
+            u32 command_result;
+            u8 padding_str[50];
+        };
+        """
         packet = b""
 
         packet += b"\xE6\x07"  # version, 2 bytes
@@ -26,7 +42,7 @@ class SmokeLoaderMimic(Mimic):
 
         packet += self.__bot_id.encode()  # bot id, 41 bytes
 
-        packet += b"DESKTOP-DLKA3HD\x00"  # computer name, 16 bytes
+        packet += b"DESKTOP-DLKA3PJ\x00"  # computer name, 16 bytes
 
         packet += self._config["botnet_id"].encode()  # botnet_id, 6 bytes
         packet += b"\x00" * (6 - len(self._config["botnet_id"]))
@@ -89,8 +105,9 @@ class SmokeLoaderMimic(Mimic):
             headers = self.formHeaders()
 
             r = requests.post(
-                self._config["c2"], data=packet, headers=headers)
+                self._config["c2"], data=packet, headers=headers, verify=False)
             encrypted_response = r.content
             print(encrypted_response)
+            print(self.decryptResponse(encrypted_response[2:]))
 
             sleep(600)

@@ -11,7 +11,7 @@ from Cryptodome.Cipher import ARC4
 def ExtractSmokeLoader(lib_path: str):
 
     def decompress_final_stage(buffer):
-        allowed_bytes = [0xE8, 0xEE, 0x31]
+        allowed_bytes = [0xE8, 0xEE, 0x31, 0x1F]
 
         if (buffer[-1] not in allowed_bytes):
             return []
@@ -125,13 +125,40 @@ def ExtractSmokeLoader(lib_path: str):
         if (not xor_key):
             return
 
-        extracted_stage = extract_final_stage(sample, xor_key, offset, size)
+        extracted_stage = extract_final_stage(
+            sample, xor_key, offset, size)
         decompressed_data = decompress_final_stage(extracted_stage[4:])
 
         decompressed_sample = Sample()
         decompressed_sample.setData(bytearray(decompressed_data))
 
         return decompressed_sample
+
+    def get_botnet_id(sample: Sample, regex_result: re.Match):
+        original_data = sample.getData()
+
+        sample_length = len(original_data) - 1
+        start_non_zero_data = 0
+        for i in range(sample_length):
+            current_byte = original_data[sample_length-i]
+            if current_byte != 0:
+                start_non_zero_data = sample_length-i
+                break
+        try:
+            botnet_id = original_data[start_non_zero_data -
+                                      3:start_non_zero_data+1].decode("utf-8")
+        except UnicodeDecodeError:
+            botnet_id = None
+
+        return botnet_id
+
+    botnet_id = Regex(
+        "botnet_id",
+        "custom",
+        (
+            b"(.)"
+        ),
+        get_botnet_id)
 
     extract = Regex(
         "extracted_sample",
@@ -141,7 +168,7 @@ def ExtractSmokeLoader(lib_path: str):
         ),
         decrypt)
 
-    return Extractor("ExtractSmokeLoader", [extract])
+    return Extractor("ExtractSmokeLoader", [extract, botnet_id])
 
 
 def SmokeLoader():

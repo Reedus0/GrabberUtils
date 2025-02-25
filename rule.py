@@ -75,13 +75,15 @@ def main():
         log(10, "Sample: " + file)
         
         last_stage_extractor.extract(sample)
-        sample = last_stage_extractor.getResult()["extracted_sample"]
+        result = last_stage_extractor.getResult()
+        sample, botned_id = result["extracted_sample"], result["botnet_id"]
 
         if (not sample):
             continue
 
         extractor.extract(sample)
         result = extractor.getResult()
+        result["botnet_id"] = botned_id
 
         print(result)
 
