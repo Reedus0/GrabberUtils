@@ -36,7 +36,7 @@ def download_sample(hash):
 
 def main():
     load_dotenv()
-    initLogging(10, os.environ["LOG_PATH"])
+    initLogging(20, os.environ["LOG_PATH"])
 
     new_samples = input("New samples? (Y/N): ")
 
@@ -73,7 +73,7 @@ def main():
     for file in files:
         sample = Sample(os.environ["SAMPLE_PATH"] + "/" + file)
         log(10, "Sample: " + file)
-        
+
         last_stage_extractor.extract(sample)
         result = last_stage_extractor.getResult()
         sample, botned_id = result["extracted_sample"], result["botnet_id"]

@@ -31,20 +31,20 @@ def main():
     load_dotenv()
     initLogging(0, os.environ["LOG_PATH"])
 
-    db = DB(
-        os.environ["DB_HOST"],
-        os.environ["DB_PORT"],
-        os.environ["DB_USER"],
-        os.environ["DB_PASSWORD"],
-        os.environ["DB_DATABASE"],
-    )
-
     while (1):
         mode = input("Hash/Query (H/Q): ")
         if (mode.lower() == "h"):
             hash = input("Hash: ")
             download_sample(hash)
         elif (mode.lower() == "q"):
+            db = DB(
+                os.environ["DB_HOST"],
+                os.environ["DB_PORT"],
+                os.environ["DB_USER"],
+                os.environ["DB_PASSWORD"],
+                os.environ["DB_DATABASE"],
+            )
+
             sql = input("Query: ")
 
             samples = db.querySamples(sql)

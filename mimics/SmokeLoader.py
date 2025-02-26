@@ -1,5 +1,8 @@
 import random
 import string
+import hashlib
+import re
+
 from time import sleep
 
 from Grabber.mimic.mimic import Mimic
@@ -14,7 +17,7 @@ class SmokeLoaderMimic(Mimic):
     _required_parmas: list[str] = [
         "c2", "botnet_id", "rc4_encrypt_key", "rc4_decrypt_key"]
 
-    def formPacket(self, command: int, command_option: int | None = None) -> bytes:
+    def formPacket(self, command: int, command_option: int | None = None, command_result: int | None = None) -> bytes:
         """
         struct packet
         {
@@ -28,7 +31,7 @@ class SmokeLoaderMimic(Mimic):
             u16 command_id;
             u32 command_option;
             u32 command_result;
-            u8 padding_str[50];
+            u8 padding_str[];
         };
         """
         packet = b""
@@ -42,7 +45,7 @@ class SmokeLoaderMimic(Mimic):
 
         packet += self.__bot_id.encode()  # bot id, 41 bytes
 
-        packet += b"DESKTOP-DLKA3PJ\x00"  # computer name, 16 bytes
+        packet += b"DESKTOP-DLKR3PJ\x00"  # computer name, 16 bytes
 
         packet += self._config["botnet_id"].encode()  # botnet_id, 6 bytes
         packet += b"\x00" * (6 - len(self._config["botnet_id"]))
@@ -56,9 +59,12 @@ class SmokeLoaderMimic(Mimic):
         if (command_option):
             packet += command_option.to_bytes(4, "little")
         else:
-            packet += b"\x00" * 4
+            packet += b"\x00" * 4  # command option, 4 bytes
 
-        packet += b"\x01\x00\x00\x00"  # command packet, 4 bytes
+        if (command_result):
+            packet += command_result.to_bytes(4, "little")
+        else:
+            packet += b"\x00" * 4  # command result, 4 bytes
 
         fill_length = random.randint(50, 200)
         fill = "".join(random.choice(string.printable)
@@ -99,15 +105,29 @@ class SmokeLoaderMimic(Mimic):
 
         return msg
 
+    def makeRequest(self, command: int, command_option: int | None = None, command_result: int | None = None) -> bytes:
+        packet = self.formPacket(command, command_option, command_result)
+        headers = self.formHeaders()
+
+        r = requests.post(
+            self._config["c2"], data=packet, headers=headers, verify=False)
+        encrypted_response = r.content
+
+        return self.decryptResponse(encrypted_response[4:])
+
     def run(self) -> None:
         while (1):
-            packet = self.formPacket(10001)
-            headers = self.formHeaders()
+            response = self.makeRequest(10001, None, 1)
+            regex_result = re.search(b"\xE6\x07(\d{1,2})|", response)
 
-            r = requests.post(
-                self._config["c2"], data=packet, headers=headers, verify=False)
-            encrypted_response = r.content
-            print(encrypted_response)
-            print(self.decryptResponse(encrypted_response[2:]))
+            if (not regex_result or not regex_result.group(1)):
+                return
+
+            payload_count = int(regex_result.group(1).decode())
+
+            for i in range(payload_count):
+                sample = self.makeRequest(10002, i, 1)
+                self.saveSample(hashlib.sha256(sample).hexdigest(), sample)
+                self.makeRequest(10003, 0x69, 1)
 
             sleep(600)
