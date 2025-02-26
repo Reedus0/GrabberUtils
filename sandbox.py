@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 from Grabber.download.abuse import AbuseDownloader
 from Grabber.download.yarify import YarifyDownloader
-from Grabber.download.ha import HybridAnalysisDownloader
+from Grabber.download.vx import VXDownloader
 
 from Grabber.sandbox.ha import HybridAnalysisSandbox
 
@@ -14,9 +14,9 @@ from Grabber.logs.logger import initLogging
 def download_sample(hash):
     abuse = AbuseDownloader(os.environ["ABUSE_API_KEY"])
     yarify = YarifyDownloader(os.environ["ABUSE_API_KEY"])
-    ha = HybridAnalysisDownloader(os.environ["HYBRID_ANALYSIS_API_KEY"])
+    vx = VXDownloader(os.environ["VX_API_KEY"])
 
-    downloaders = [abuse, yarify, ha]
+    downloaders = [abuse, yarify, vx]
 
     for downloader in downloaders:
         downloader.download(hash)

@@ -4,8 +4,6 @@ from Grabber.logs.logger import initLogging
 from Grabber.config.sample import Sample
 
 from extractors.LeprechaunVNC import LeprechaunVNC
-from extractors.ValleyRAT64 import ValleyRAT64
-from extractors.MysticStealer import MysticStealer
 from extractors.XWorm import XWorm
 from extractors.YoungLotus import YoungLotus
 from extractors.njrat import njrat
@@ -22,7 +20,7 @@ def main():
         samples.extend(filenames)
         break
 
-    extractor = MysticStealer()
+    extractor = XWorm()
     total = 0
 
     for sample in samples:
