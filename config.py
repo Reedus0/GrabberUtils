@@ -15,27 +15,25 @@ def main():
     load_dotenv()
     initLogging(0, os.environ["LOG_PATH"])
 
-    samples = []
-    for (dirpath, dirnames, filenames) in os.walk(os.environ["SAMPLE_PATH"]):
-        samples.extend(filenames)
-        break
+    extractors = [XWorm(), YoungLotus(), njrat(), LeprechaunVNC()]
+    chosen_extractor = None
 
-    extractor = XWorm()
-    total = 0
+    for extractor in extractors:
+        print(extractor.getName())
 
-    for sample in samples:
-        sample = Sample(os.environ["SAMPLE_PATH"] + "/" + sample)
-        extractor.extract(sample)
-        result = extractor.getResult()
+    extractor_name = input("Extractor: ")
 
-        print(result)
+    for extractor in extractors:
+        if (extractor_name == extractor.getName()):
+            chosen_extractor = extractor
 
-        if (len(result.keys())):
-            total += 1
+    name = input("Name: ")
 
-    print("Result: ")
-    print(f"{total}/{len(samples)} ({total / len(samples) * 100}%)")
-    print("")
+    sample = Sample(os.environ["SAMPLE_PATH"] + "/" + name)
+    chosen_extractor.extract(sample)
+    result = chosen_extractor.getResult()
+
+    print(result)
 
 
 if __name__ == "__main__":
