@@ -6,6 +6,7 @@ from extractors.LeprechaunVNC import LeprechaunVNC
 from extractors.XWorm import XWorm
 from extractors.SmokeLoader import SmokeLoader, ExtractSmokeLoader
 from extractors.njrat import njrat
+from extractors.DotnetLoader import DotnetLoader
 
 from Grabber.logs.logger import initLogging, log
 from dotenv import load_dotenv
@@ -36,7 +37,7 @@ def download_sample(hash):
 
 def main():
     load_dotenv()
-    initLogging(20, os.environ["LOG_PATH"])
+    initLogging(10, os.environ["LOG_PATH"])
 
     new_samples = input("New samples? (Y/N): ")
 
@@ -65,8 +66,8 @@ def main():
         files.extend(filenames)
         break
 
-    last_stage_extractor = ExtractSmokeLoader(os.environ["LIB_PATH"])
-    extractor = SmokeLoader()
+    # last_stage_extractor = ExtractSmokeLoader(os.environ["LIB_PATH"])
+    extractor = DotnetLoader()
     log(10, "Running extractor...")
     total = 0
 
@@ -74,20 +75,20 @@ def main():
         sample = Sample(os.environ["SAMPLE_PATH"] + "/" + file)
         log(10, "Sample: " + file)
 
-        last_stage_extractor.extract(sample)
-        result = last_stage_extractor.getResult()
-        sample, botned_id = result["extracted_sample"], result["botnet_id"]
+        # last_stage_extractor.extract(sample)
+        # result = extractor.getResult()
+        # sample, botned_id = result["extracted_sample"], result["botnet_id"]
 
         if (not sample):
             continue
 
         extractor.extract(sample)
         result = extractor.getResult()
-        result["botnet_id"] = botned_id
+        # result["botnet_id"] = botned_id
 
         print(result)
 
-        if (result["c2"] != ""):
+        if ([x for x in result.values() if x]):
             total += 1
 
     print("Result: ")

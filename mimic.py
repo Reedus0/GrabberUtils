@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 
 from mimics.SmokeLoader import SmokeLoaderMimic
+from mimics.DotnetLoader import DotnetLoaderMimic
+
 
 from Grabber.logs.logger import initLogging
 
@@ -11,14 +13,16 @@ def main():
     load_dotenv()
     initLogging(0, os.environ["LOG_PATH"])
 
-    config = {
-        "c2": "http://prolinice.ga/index.php",
-        "botnet_id": "",
-        "rc4_encrypt_key": 313803588,
-        "rc4_decrypt_key": 2616091366
-    }
+    # config = {
+    #     "c2": "http://prolinice.ga/index.php",
+    #     "botnet_id": "",
+    #     "rc4_encrypt_key": 313803588,
+    #     "rc4_decrypt_key": 2616091366
+    # }
 
-    mimic = SmokeLoaderMimic(config, os.environ["SAMPLE_PATH"])
+    config = {'url': 'http://196.251.83.222/win32/panel/uploads/Rwptqyessl.mp3', 'key': '7Y3S/CGoEjhVFdee9CTb8w==', 'iv': 'OYawy62QhbE='}
+
+    mimic = DotnetLoaderMimic(config, os.environ["SAMPLE_PATH"])
     if (mimic.validateConfig()):
         mimic.run()
 
