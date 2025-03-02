@@ -5,7 +5,7 @@ from Grabber.config.regex import Regex
 from Grabber.config.sample import Sample
 
 
-def DotnetLoader():
+def PureCrypterLoader():
     def extract(sample: Sample, regex_result: re.Match):
         result = []
 
@@ -27,4 +27,24 @@ def DotnetLoader():
         ),
         extract)
 
-    return Extractor("DotnetLoader", [url])
+    key = Regex(
+        "key",
+        "cli_offset",
+        (
+            b"\\x38.{3}."
+            b"\\x72(.{3})\\x70"
+            b"\\x28.{3}\\x0A"
+            b"\\x13[^\\x05]"
+        ))
+
+    iv = Regex(
+        "iv",
+        "cli_offset",
+        (
+            b"\\x38.{3}."
+            b"\\x72(.{3})\\x70"
+            b"\\x28.{3}\\x0A"
+            b"\\x13\\x05"
+        ))
+
+    return Extractor("PureCrypterLoader", [url, key, iv])

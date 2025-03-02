@@ -7,7 +7,7 @@ from Cryptodome.Cipher import DES3
 import requests
 
 
-class DotnetLoaderMimic(Mimic):
+class PureCrypterLoaderMimic(Mimic):
 
     _required_parmas: list[str] = ["url", "key", "iv"]
 

@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 from mimics.SmokeLoader import SmokeLoaderMimic
-from mimics.DotnetLoader import DotnetLoaderMimic
+from mimics.PureCrypterLoader import PureCrypterLoaderMimic
 
 
 from Grabber.logs.logger import initLogging
@@ -22,7 +22,7 @@ def main():
 
     config = {'url': 'http://196.251.83.222/win32/panel/uploads/Rwptqyessl.mp3', 'key': '7Y3S/CGoEjhVFdee9CTb8w==', 'iv': 'OYawy62QhbE='}
 
-    mimic = DotnetLoaderMimic(config, os.environ["SAMPLE_PATH"])
+    mimic = PureCrypterLoaderMimic(config, os.environ["SAMPLE_PATH"])
     if (mimic.validateConfig()):
         mimic.run()
 

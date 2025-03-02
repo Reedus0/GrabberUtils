@@ -6,6 +6,7 @@ from extractors.LeprechaunVNC import LeprechaunVNC
 from extractors.XWorm import XWorm
 from extractors.SmokeLoader import SmokeLoader, ExtractSmokeLoader
 from extractors.njrat import njrat
+from extractors.PureCrypterLoader import PureCrypterLoader
 from extractors.DotnetLoader import DotnetLoader
 
 from Grabber.logs.logger import initLogging, log
