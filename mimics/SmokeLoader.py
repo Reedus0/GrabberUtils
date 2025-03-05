@@ -116,18 +116,15 @@ class SmokeLoaderMimic(Mimic):
         return self.decryptResponse(encrypted_response[4:])
 
     def run(self) -> None:
-        while (1):
-            response = self.makeRequest(10001, None, 1)
-            regex_result = re.search(b"\xE6\x07(\d{1,2})|", response)
+        response = self.makeRequest(10001, None, 1)
+        regex_result = re.search(b"\xE6\x07(\d{1,2})|", response)
 
-            if (not regex_result or not regex_result.group(1)):
-                return
+        if (not regex_result or not regex_result.group(1)):
+            return
 
-            payload_count = int(regex_result.group(1).decode())
+        payload_count = int(regex_result.group(1).decode())
 
-            for i in range(payload_count):
-                sample = self.makeRequest(10002, i, 1)
-                self.saveSample(hashlib.sha256(sample).hexdigest(), sample)
-                self.makeRequest(10003, 0x69, 1)
-
-            sleep(600)
+        for i in range(payload_count):
+            sample = self.makeRequest(10002, i, 1)
+            self.saveSample(hashlib.sha256(sample).hexdigest(), sample)
+            self.makeRequest(10003, 0x69, 1)

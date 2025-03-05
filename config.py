@@ -7,6 +7,8 @@ from extractors.LeprechaunVNC import LeprechaunVNC
 from extractors.XWorm import XWorm
 from extractors.YoungLotus import YoungLotus
 from extractors.njrat import njrat
+from extractors.DotnetLoader import DotnetLoader
+from extractors.PureCrypterLoader import PureCrypterLoader
 
 from dotenv import load_dotenv
 
@@ -15,7 +17,7 @@ def main():
     load_dotenv()
     initLogging(0, os.environ["LOG_PATH"])
 
-    extractors = [XWorm(), YoungLotus(), njrat(), LeprechaunVNC()]
+    extractors = [XWorm(), YoungLotus(), njrat(), LeprechaunVNC(), DotnetLoader(), PureCrypterLoader()]
     chosen_extractor = None
 
     for extractor in extractors:

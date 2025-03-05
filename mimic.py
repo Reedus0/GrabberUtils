@@ -20,7 +20,7 @@ def main():
     #     "rc4_decrypt_key": 2616091366
     # }
 
-    config = {'url': 'http://196.251.83.222/win32/panel/uploads/Rwptqyessl.mp3', 'key': '7Y3S/CGoEjhVFdee9CTb8w==', 'iv': 'OYawy62QhbE='}
+    config = {'url': 'http://196.251.83.222/win32/panel/uploads/Dpycme.pdf', 'key': 'T2XHruGCfIvo3Nf8GSxx6g==', 'iv': 'ugvHoHdatJQ=', 'algorithm': 'RC2'}
 
     mimic = PureCrypterLoaderMimic(config, os.environ["SAMPLE_PATH"])
     if (mimic.validateConfig()):
