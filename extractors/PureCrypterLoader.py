@@ -23,7 +23,7 @@ def PureCrypterLoader():
         "url",
         "custom",
         (
-            b"(h\x00t\x00t\x00p\x00s?\x00?:\x00\/\x00\/(\x00.)*?\x00\x00)"
+            b"(h\x00t\x00t\x00p\x00s?\x00?:\x00/\x00/\x00[A-Za-z0-9.:/\x00?#=]+)\x00\x00"
         ),
         extract)
 

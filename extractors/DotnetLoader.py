@@ -8,23 +8,21 @@ from Grabber.config.sample import Sample
 def DotnetLoader():
     def extract(sample: Sample, regex_result: re.Match):
         result = []
+        regex = b"(h\x00t\x00t\x00p\x00s?\x00?:\x00/\x00/\x00[A-Za-z0-9.:/\x00?#=]+)\x00\x00"
 
-        if (not regex_result):
-            return ""
+        match = re.findall(regex, sample.getData())
 
-        extract_result = regex_result[1]
+        for url in match:
+            result.append(url.decode().replace("\x00", ""))
 
-        for i in range(0, len(extract_result) - 1, 2):
-            result.append(chr(extract_result[i]))
+        return result
 
-        return "".join(result)
-
-    url = Regex(
-        "url",
+    urls = Regex(
+        "urls",
         "custom",
         (
-            b"(h\x00t\x00t\x00p\x00s?\x00?:\x00\/\x00\/(\x00.)*?\x00\x00)"
+            b"(.)"
         ),
         extract)
 
-    return Extractor("DotnetLoader", [url])
+    return Extractor("DotnetLoader", [urls])

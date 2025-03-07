@@ -161,7 +161,7 @@ def ExtractSmokeLoader(lib_path: str):
         get_botnet_id)
 
     extract = Regex(
-        "extracted_sample",
+        "sample",
         "custom",
         (
             b"(.)"

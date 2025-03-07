@@ -8,6 +8,8 @@ from extractors.SmokeLoader import SmokeLoader, ExtractSmokeLoader
 from extractors.njrat import njrat
 from extractors.PureCrypterLoader import PureCrypterLoader
 from extractors.DotnetLoader import DotnetLoader
+from extractors.YoungLotus import YoungLotus
+from extractors.AgentTesla import AgentTesla, XORAgentTesla
 
 from Grabber.logs.logger import initLogging, log
 from dotenv import load_dotenv
@@ -67,8 +69,9 @@ def main():
         files.extend(filenames)
         break
 
-    # last_stage_extractor = ExtractSmokeLoader(os.environ["LIB_PATH"])
-    extractor = DotnetLoader()
+    preprocessor = XORAgentTesla()
+    extractor = AgentTesla()
+
     log(10, "Running extractor...")
     total = 0
 
@@ -76,16 +79,16 @@ def main():
         sample = Sample(os.environ["SAMPLE_PATH"] + "/" + file)
         log(10, "Sample: " + file)
 
-        # last_stage_extractor.extract(sample)
-        # result = extractor.getResult()
-        # sample, botned_id = result["extracted_sample"], result["botnet_id"]
+        if (preprocessor):
+            preprocessor.extract(sample)
+            result = preprocessor.getResult()
+            sample = result["sample"]
 
         if (not sample):
             continue
 
         extractor.extract(sample)
         result = extractor.getResult()
-        # result["botnet_id"] = botned_id
 
         print(result)
 
@@ -95,18 +98,6 @@ def main():
     print("Result: ")
     print(f"{total}/{len(files)} ({total / len(files) * 100}%)")
     print("")
-
-    # delete = input("Delete? (Y/N): ")
-
-    # if (delete.lower() == "y"):
-
-    #     log(10, "Removing samples...")
-
-    #     for sample in files:
-    #         os.remove(os.environ["SAMPLE_PATH"] + "/" + sample)
-
-    #     log(10, "Successfully removed samples!")
-
 
 if __name__ == "__main__":
     main()
