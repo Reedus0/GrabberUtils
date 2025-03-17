@@ -16,16 +16,21 @@ def XWorm():
 
         current_string = sample.readCLIString(string_offset)
 
-        while (1):
+        for i in range(10000):
             try:
                 base64.decodebytes(current_string.encode())
-                strings.append(current_string[:-1])
+                if (current_string):
+                    strings.append(current_string)
                 string_offset += len(current_string * 2)
+                string_offset += 1
                 current_string = sample.readCLIString(string_offset)
 
             except binascii.Error:
                 strings.pop()
                 break
+        else:
+            return ""
+        
         try:
             mutex = strings[-1]
         except IndexError:
