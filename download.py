@@ -9,6 +9,8 @@ from Grabber.download.abuse import AbuseDownloader
 from Grabber.download.yarify import YarifyDownloader
 from Grabber.download.vx import VXDownloader
 
+from Grabber.logs.logger import log
+
 
 def download_sample(hash):
     abuse = AbuseDownloader(os.environ["ABUSE_API_KEY"])
@@ -25,6 +27,8 @@ def download_sample(hash):
                 sample.write(result)
                 sample.close()
             break
+    else:
+        log(10, "Failed to download sample...")
 
 
 def main():

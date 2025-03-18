@@ -18,25 +18,33 @@ def njrat():
         unicode_data = data[unicode_offset:300+unicode_offset]
 
         config = []
-        for data in unicode_data:
-            data = data.to_bytes(1, byteorder="little")
+        for chars in unicode_data:
+            char = chars.to_bytes(1, byteorder="little")
 
-            if data > b'\x00' and data < b'\x2E' and data != b'1B' and data != b'27':
+            if char > b'\x00' and char < b'\x2E' and char != b'1B' and char != b'27':
                 config.append("&")
-            elif data < b'\x7F' and data > b'\x20':
+            elif char < b'\x7F' and char > b'\x20':
                 try:
-                    config.append(data.decode("utf-8"))
-                except:
+                    config.append(char.decode("utf-8"))
+                except UnicodeDecodeError:
                     pass
 
         config_string = ''.join(config)
         splited_config = config_string.split("&")
-        address_regex = "(.+\.){3,}(.+)"
+
+        ip_regex = r"(\d{1,3}\.){3}\d{1,3}"
+
+        for param in splited_config:
+            match = re.search(ip_regex, param)
+            if (match):
+                return match[0]
+
+        address_regex = r"([\w-]+\.){1,}[^exe][a-zA-Z]{2,5}"
 
         for param in splited_config:
             match = re.search(address_regex, param)
             if (match):
-                return match.group(0)
+                return match[0]
 
         return ""
 

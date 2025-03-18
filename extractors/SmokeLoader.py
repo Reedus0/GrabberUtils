@@ -4,8 +4,39 @@ import ctypes
 from Grabber.config.sample import Sample
 from Grabber.config.extractor import Extractor
 from Grabber.config.regex import Regex
+from Grabber.config.processor import Processor
 
 from Cryptodome.Cipher import ARC4
+
+
+def SmokeLoaderId():
+    def get_botnet_id(sample: Sample, regex_result: re.Match):
+        original_data = sample.getData()
+
+        sample_length = len(original_data) - 1
+        start_non_zero_data = 0
+        for i in range(sample_length):
+            current_byte = original_data[sample_length-i]
+            if current_byte != 0:
+                start_non_zero_data = sample_length-i
+                break
+        try:
+            botnet_id = original_data[start_non_zero_data -
+                                      3:start_non_zero_data+1].decode("utf-8")
+        except UnicodeDecodeError:
+            botnet_id = None
+
+        return botnet_id
+
+    botnet_id = Regex(
+        "botnet_id",
+        "custom",
+        (
+            b"(.)"
+        ),
+        get_botnet_id)
+
+    return Extractor("SmokeLoaderId", [botnet_id])
 
 
 def ExtractSmokeLoader(lib_path: str):
@@ -112,7 +143,7 @@ def ExtractSmokeLoader(lib_path: str):
 
         return final_stage
 
-    def decrypt(sample: Sample, regex_result: re.Match):
+    def decrypt(sample: Sample):
         final_stage = decrypt_final_stage(sample)
 
         if (not final_stage):
@@ -134,41 +165,7 @@ def ExtractSmokeLoader(lib_path: str):
 
         return decompressed_sample
 
-    def get_botnet_id(sample: Sample, regex_result: re.Match):
-        original_data = sample.getData()
-
-        sample_length = len(original_data) - 1
-        start_non_zero_data = 0
-        for i in range(sample_length):
-            current_byte = original_data[sample_length-i]
-            if current_byte != 0:
-                start_non_zero_data = sample_length-i
-                break
-        try:
-            botnet_id = original_data[start_non_zero_data -
-                                      3:start_non_zero_data+1].decode("utf-8")
-        except UnicodeDecodeError:
-            botnet_id = None
-
-        return botnet_id
-
-    botnet_id = Regex(
-        "botnet_id",
-        "custom",
-        (
-            b"(.)"
-        ),
-        get_botnet_id)
-
-    extract = Regex(
-        "sample",
-        "custom",
-        (
-            b"(.)"
-        ),
-        decrypt)
-
-    return Extractor("ExtractSmokeLoader", [extract, botnet_id])
+    return Processor("SmokeLoader", decrypt)
 
 
 def SmokeLoader():
@@ -214,49 +211,3 @@ def SmokeLoader():
         get_c2_url)
 
     return Extractor("SmokeLoader", [c2, encrypt_key, decrypt_key])
-
-
-# https://dns.google/resolve?name=microsoft.com
-# Software\Microsoft\Internet Explorer
-# advapi32.dll
-# Location:
-# plugin_size
-# user32
-# advapi32
-# urlmon
-# ole32
-# winhttp
-# ws2_32
-# dnsapi
-# shell32
-# shlwapi
-# svcVersion
-# Version
-# .bit
-# %sFF
-# %02x
-# %s%08X%08X
-# %s\%hs
-# %s%s
-# regsvr32 /s %s
-# %APPDATA%
-# %TEMP%
-# .exe
-# .dll
-# .bat
-# :Zone.Identifier
-# POST
-# Content-Type: application/x-www-form-urlencoded
-# open
-# Host: %s
-# PT10M
-# 1999-11-30T00:00:00
-# Firefox Default Browser Agent %hs
-# Accept: */*
-# Referer: http://%S%s/
-# Accept: */*
-# Referer: https://%S%s/
-# .com
-# .org
-# .net
-# explorer.exe

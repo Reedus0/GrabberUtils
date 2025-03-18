@@ -1,10 +1,12 @@
 import os
 
 from Grabber.config.sample import Sample
+from Grabber.config.processor import Processor
+from Grabber.config.extractor import Extractor
 
 from extractors.LeprechaunVNC import LeprechaunVNC
 from extractors.XWorm import XWorm
-from extractors.SmokeLoader import SmokeLoader, ExtractSmokeLoader
+from extractors.SmokeLoader import SmokeLoader, ExtractSmokeLoader, SmokeLoaderId
 from extractors.njrat import njrat
 from extractors.PureCrypterLoader import PureCrypterLoader
 from extractors.DotnetLoader import DotnetLoader
@@ -65,12 +67,13 @@ def main():
                 log(10, f"Sample {i + 1}/{len(samples)}")
 
     files = []
+
     for (dirpath, dirnames, filenames) in os.walk(os.environ["SAMPLE_PATH"] + "/"):
         files.extend(filenames)
         break
 
-    preprocessor = None
-    extractor = XWorm()
+    # workers = [SmokeLoaderId(), ExtractSmokeLoader(os.environ["LIB_PATH"]), SmokeLoader()]
+    workers = [njrat()]
 
     log(10, "Running extractor...")
     total = 0
@@ -79,16 +82,15 @@ def main():
         sample = Sample(os.environ["SAMPLE_PATH"] + "/" + file)
         log(10, "Sample: " + file)
 
-        if (preprocessor):
-            preprocessor.extract(sample)
-            result = preprocessor.getResult()
-            sample = result["sample"]
+        result = {}
 
-        if (not sample):
-            continue
-
-        extractor.extract(sample)
-        result = extractor.getResult()
+        for worker in workers:
+            if (isinstance(worker, Processor)):
+                worker.processSample(sample)
+                sample = worker.getResult()
+            if (isinstance(worker, Extractor)):
+                worker.extract(sample)
+                result = {**result, **worker.getResult()}
 
         print(result)
 
@@ -98,6 +100,7 @@ def main():
     print("Result: ")
     print(f"{total}/{len(files)} ({total / len(files) * 100}%)")
     print("")
+
 
 if __name__ == "__main__":
     main()

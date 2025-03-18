@@ -15,6 +15,7 @@ from Grabber.download.vx import VXDownloader
 
 from extractors.DotnetLoader import DotnetLoader
 from extractors.XWorm import XWorm
+from extractors.njrat import njrat
 
 from Grabber.db.db import DB
 from Grabber.logs.logger import log, initLogging
@@ -38,6 +39,8 @@ def download_sample(hash):
                 sample.write(result)
                 sample.close()
             break
+    else:
+        log(10, "Failed to download sample...")
 
 
 def collect_samples():
@@ -104,8 +107,9 @@ def config_extract_sample(sample):
     result = sample
 
     config = {
-        "win32_dotnet_loader": {"extractor": DotnetLoader},
-        "win32_xworm": {"extractor": XWorm}
+        "win32_dotnet_loader": [DotnetLoader],
+        "win32_xworm": [XWorm],
+        "win32_njrat": [njrat]
     }
     scanner = ConfigScanner(os.environ["SAMPLE_PATH"], config)
 
