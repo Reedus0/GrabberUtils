@@ -16,7 +16,7 @@ def XWorm():
 
         current_string = sample.readCLIString(string_offset)
 
-        for i in range(10):
+        for i in range(25):
             try:
                 base64.decodebytes(current_string.encode())
                 if (current_string):
@@ -26,11 +26,12 @@ def XWorm():
                 current_string = sample.readCLIString(string_offset)
 
             except binascii.Error:
-                strings.pop()
+                if (i > 1):
+                    strings.pop()
                 break
         else:
             return ""
-        
+
         try:
             mutex = strings[-1]
         except IndexError:
@@ -41,12 +42,16 @@ def XWorm():
         key[0:16] = md5
         key[15:31] = md5
 
-        result = base64.b64decode(strings[0])
+        try:
+            result = base64.b64decode(strings[0])
+        except ValueError:
+            return ""
+
         cipher = AES.new(bytes(key), AES.MODE_ECB)
         try:
             decrypted_result = cipher.decrypt(bytes(result)).decode()
             decrypted_result = re.sub(r'[^\x20-\x7f]', r'', decrypted_result)
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, ValueError):
             return ""
 
         return decrypted_result

@@ -69,8 +69,8 @@ def main():
         files.extend(filenames)
         break
 
-    preprocessor = XORAgentTesla()
-    extractor = AgentTesla()
+    preprocessor = None
+    extractor = XWorm()
 
     log(10, "Running extractor...")
     total = 0
