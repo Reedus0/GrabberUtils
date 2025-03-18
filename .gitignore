@@ -5,3 +5,4 @@ samples
 *.so
 *.o
 .env
+result.yar
