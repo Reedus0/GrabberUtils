@@ -16,7 +16,7 @@ def XWorm():
 
         current_string = sample.readCLIString(string_offset)
 
-        for i in range(100):
+        for i in range(10):
             try:
                 base64.decodebytes(current_string.encode())
                 if (current_string):
