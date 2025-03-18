@@ -83,28 +83,25 @@ def delete_existing_samples(raw_samples):
     return filtered_samples
 
 
-def yara_scan_samples(samples):
-    scanned_samples = []
+def yara_scan_sample(sample):
+
+    result = sample
 
     scanner = YaraScanner(
         os.environ["RULES_PATH"], os.environ["SAMPLE_PATH"])
 
-    for sample in samples:
-        try:
-            if (not sample["malware_family"]):
-                download_sample(sample["sha256_hash"])
-                scanned_samples.append(scanner.scan(sample))
-            else:
-                scanned_samples.append(sample)
-        except Exception as e:
-            log(20, "Error: " + e.message)
-            scanned_samples.append(sample)
+    try:
+        if (not sample["malware_family"]):
+            download_sample(sample["sha256_hash"])
+            result = scanner.scan(sample)
+    except Exception as e:
+        log(20, "Error: " + e.message)
 
-    return scanned_samples
+    return result
 
 
-def config_extract_samples(samples):
-    scanned_samples = []
+def config_extract_sample(sample):
+    result = sample
 
     config = {
         "win32_dotnet_loader": {"extractor": DotnetLoader},
@@ -112,45 +109,39 @@ def config_extract_samples(samples):
     }
     scanner = ConfigScanner(os.environ["SAMPLE_PATH"], config)
 
-    for sample in samples:
+    try:
+        if (sample["malware_family"] in config.keys()):
+            download_sample(sample["sha256_hash"])
+            result = scanner.scan(sample)
+
         try:
-            if (sample["malware_family"] in config.keys()):
-                download_sample(sample["sha256_hash"])
-                scanned_samples.append(scanner.scan(sample))
-            else:
-                scanned_samples.append(sample)
+            os.remove(os.environ["SAMPLE_PATH"] +
+                      "/" + sample["sha256_hash"])
+        except FileNotFoundError:
+            pass
+    except Exception as e:
+        log(20, "Error: " + e.message)
 
-            try:
-                os.remove(os.environ["SAMPLE_PATH"] +
-                          "/" + sample["sha256_hash"])
-            except FileNotFoundError:
-                pass
-        except Exception as e:
-            log(20, "Error: " + e.message)
-            scanned_samples.append(sample)
-
-    return scanned_samples
+    return result
 
 
-def virustotal_scan_samples(samples):
-    scanned_samples = []
+def virustotal_scan_sample(sample):
+
+    result = sample
 
     scanner = VirusTotalScanner(os.environ["VIRUSTOTAL_API_LEY"])
 
-    for sample in samples:
-        try:
-            if (not sample["malware_family"]):
-                scanned_samples.append(scanner.scan(sample))
-            else:
-                scanned_samples.append(sample)
-        except Exception as e:
-            log(20, "Error: " + e.message)
-            scanned_samples.append(sample)
+    try:
+        if (not sample["malware_family"]):
+            result = scanner.scan(sample)
 
-    return scanned_samples
+    except Exception as e:
+        log(20, "Error: " + e.message)
+
+    return result
 
 
-def upload_samples(samples):
+def upload_sample(sample):
     log(10, "Initiatiating DB connection...")
 
     db = DB(
@@ -161,12 +152,11 @@ def upload_samples(samples):
         os.environ["DB_DATABASE"],
     )
 
-    log(10, "Uploading samples to DB...")
+    log(10, "Uploading sample to DB...")
 
-    for sample in samples:
-        db.addSample(sample)
+    db.addSample(sample)
 
-    log(10, "Successfully added samples to DB!")
+    log(10, "Successfully added sample to DB!")
 
 
 def main():
@@ -179,13 +169,16 @@ def main():
 
     log(10, "Scanning " + str(len(filtered_samples)) + " samples...")
 
-    scanned_samples = yara_scan_samples(filtered_samples)
-    scanned_samples = config_extract_samples(scanned_samples)
-    scanned_samples = virustotal_scan_samples(scanned_samples)
+    for sample in filtered_samples:
 
-    log(10, "Successfully scanned " + str(len(scanned_samples)) + " samples!")
+        sample = yara_scan_sample(sample)
+        sample = config_extract_sample(sample)
+        sample = virustotal_scan_sample(sample)
 
-    upload_samples(scanned_samples)
+        upload_sample(sample)
+
+    log(10, "Successfully scanned and uploaded " +
+        str(len(filtered_samples)) + " samples!")
 
 
 if __name__ == "__main__":
