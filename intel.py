@@ -107,9 +107,9 @@ def config_extract_sample(sample):
     result = sample
 
     config = {
-        "win32_dotnet_loader": [DotnetLoader],
-        "win32_xworm": [XWorm],
-        "win32_njrat": [njrat]
+        "win32_dotnet_loader": [DotnetLoader()],
+        "win32_xworm": [XWorm()],
+        "win32_njrat": [njrat()]
     }
     scanner = ConfigScanner(os.environ["SAMPLE_PATH"], config)
 
