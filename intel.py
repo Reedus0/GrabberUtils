@@ -98,7 +98,7 @@ def yara_scan_sample(sample):
             download_sample(sample["sha256_hash"])
             result = scanner.scan(sample)
     except Exception as e:
-        log(20, "Error: " + e.message)
+        log(20, str(e))
 
     return result
 
@@ -117,14 +117,13 @@ def config_extract_sample(sample):
         if (sample["malware_family"] in config.keys()):
             download_sample(sample["sha256_hash"])
             result = scanner.scan(sample)
-
         try:
             os.remove(os.environ["SAMPLE_PATH"] +
                       "/" + sample["sha256_hash"])
         except FileNotFoundError:
             pass
     except Exception as e:
-        log(20, "Error: " + e.message)
+        log(20, str(e))
 
     return result
 
@@ -140,7 +139,7 @@ def virustotal_scan_sample(sample):
             result = scanner.scan(sample)
 
     except Exception as e:
-        log(20, "Error: " + e.message)
+        log(20, str(e))
 
     return result
 
