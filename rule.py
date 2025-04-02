@@ -7,11 +7,12 @@ from Grabber.config.extractor import Extractor
 from extractors.LeprechaunVNC import LeprechaunVNC
 from extractors.XWorm import XWorm
 from extractors.SmokeLoader import SmokeLoader, ExtractSmokeLoader, SmokeLoaderId
-from extractors.njrat import njrat
+from extractors.njRAT import njRAT
 from extractors.PureCrypterLoader import PureCrypterLoader
 from extractors.DotnetLoader import DotnetLoader
 from extractors.YoungLotus import YoungLotus
 from extractors.AgentTesla import AgentTesla, XORAgentTesla
+from extractors.Tofsee import Tofsee
 
 from Grabber.logs.logger import initLogging, log
 from dotenv import load_dotenv
@@ -73,7 +74,7 @@ def main():
         break
 
     # workers = [SmokeLoaderId(), ExtractSmokeLoader(os.environ["LIB_PATH"]), SmokeLoader()]
-    workers = [DotnetLoader()]
+    workers = [Tofsee()]
 
     log(10, "Running extractor...")
     total = 0

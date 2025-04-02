@@ -15,7 +15,9 @@ from Grabber.download.vx import VXDownloader
 
 from extractors.DotnetLoader import DotnetLoader
 from extractors.XWorm import XWorm
-from extractors.njrat import njrat
+from extractors.njRAT import njRAT
+from extractors.YoungLotus import YoungLotus
+from extractors.Tofsee import Tofsee
 
 from Grabber.db.db import DB
 from Grabber.logs.logger import log, initLogging
@@ -109,7 +111,9 @@ def config_extract_sample(sample):
     config = {
         "win32_dotnet_loader": [DotnetLoader()],
         "win32_xworm": [XWorm()],
-        "win32_njrat": [njrat()]
+        "win32_njRAT": [njRAT()],
+        "win32_younglotus": [YoungLotus()],
+        "win32_tofsee": [Tofsee()]
     }
     scanner = ConfigScanner(os.environ["SAMPLE_PATH"], config)
 

@@ -13,11 +13,12 @@ from Grabber.logs.logger import log
 
 
 def download_sample(hash):
-    abuse = AbuseDownloader(os.environ["ABUSE_API_KEY"])
-    yarify = YarifyDownloader(os.environ["ABUSE_API_KEY"])
-    vx = VXDownloader(os.environ["VX_API_KEY"])
 
-    downloaders = [abuse, yarify, vx]
+    downloaders = [
+        AbuseDownloader(os.environ["ABUSE_API_KEY"]),
+        YarifyDownloader(os.environ["ABUSE_API_KEY"]),
+        VXDownloader(os.environ["VX_API_KEY"])
+    ]
 
     for downloader in downloaders:
         downloader.download(hash)

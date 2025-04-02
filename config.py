@@ -6,9 +6,10 @@ from Grabber.config.sample import Sample
 from extractors.LeprechaunVNC import LeprechaunVNC
 from extractors.XWorm import XWorm
 from extractors.YoungLotus import YoungLotus
-from extractors.njrat import njrat
+from extractors.njRAT import njRAT
 from extractors.DotnetLoader import DotnetLoader
 from extractors.PureCrypterLoader import PureCrypterLoader
+from extractors.Tofsee import Tofsee
 
 from dotenv import load_dotenv
 
@@ -17,7 +18,7 @@ def main():
     load_dotenv()
     initLogging(0, os.environ["LOG_PATH"])
 
-    extractors = [XWorm(), YoungLotus(), njrat(), LeprechaunVNC(), DotnetLoader(), PureCrypterLoader()]
+    extractors = [XWorm(), YoungLotus(), njRAT(), LeprechaunVNC(), DotnetLoader(), PureCrypterLoader(), Tofsee()]
     chosen_extractor = None
 
     for extractor in extractors:

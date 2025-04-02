@@ -1,7 +1,7 @@
 rule win32_njrat {
     meta:
         author = "Reedus0"
-        description = "Rule for detecting njrat malware"
+        description = "Rule for detecting njRAT malware"
         date = "2025-02-01"
         yarahub_uuid = "882404f2-e440-4c51-8530-69a5d482eddd"
         yarahub_license = "CC BY-NC 4.0"

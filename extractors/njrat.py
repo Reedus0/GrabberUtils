@@ -5,7 +5,7 @@ from Grabber.config.extractor import Extractor
 from Grabber.config.regex import Regex
 
 
-def njrat():
+def njRAT():
     def extract(sample: Sample, regex_result: re.Match):
         data = sample.getData()
         nullmatch: re.Match[bytes] | None = re.search(
@@ -56,4 +56,4 @@ def njrat():
         ),
         extract)
 
-    return Extractor("njrat", [config])
+    return Extractor("njRAT", [config])
