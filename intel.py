@@ -28,8 +28,8 @@ def download_sample(hash):
         return
 
     downloaders = [
-        AbuseDownloader(os.environ["ABUSE_API_KEY"]),
         YarifyDownloader(os.environ["ABUSE_API_KEY"]),
+        AbuseDownloader(os.environ["ABUSE_API_KEY"]),
         VXDownloader(os.environ["VX_API_KEY"])
     ]
 

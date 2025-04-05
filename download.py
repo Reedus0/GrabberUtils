@@ -15,8 +15,8 @@ from Grabber.logs.logger import log
 def download_sample(hash):
 
     downloaders = [
-        AbuseDownloader(os.environ["ABUSE_API_KEY"]),
         YarifyDownloader(os.environ["ABUSE_API_KEY"]),
+        AbuseDownloader(os.environ["ABUSE_API_KEY"]),
         VXDownloader(os.environ["VX_API_KEY"])
     ]
 
