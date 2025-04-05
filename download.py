@@ -37,11 +37,11 @@ def main():
     initLogging(0, os.environ["LOG_PATH"])
 
     while (1):
-        mode = input("Hash/Query (H/Q): ")
+        mode = input("Hash/Query/Family (H/Q/F): ")
         if (mode.lower() == "h"):
             hash = input("Hash: ")
             download_sample(hash)
-        elif (mode.lower() == "q"):
+        elif (mode.lower() == "y" or mode.lower() == "f"):
             db = DB(
                 os.environ["DB_HOST"],
                 os.environ["DB_PORT"],
@@ -50,15 +50,22 @@ def main():
                 os.environ["DB_DATABASE"],
             )
 
-            sql = input("Query: ")
+            sql = ""
+
+            if (mode.lower() == "f"):
+                sql = f"SELECT * FROM sample WHERE malware_family = '{input("Family: ")}' ORDER BY id DESC LIMIT 100;"
+            else:
+                sql = input("Query: ")
 
             samples = db.querySamples(sql)
             print(samples)
             download = input("Download? (Y/N): ")
 
             if (download.lower() == "y"):
-                for sample in samples:
+                for i in range(len(samples)):
+                    sample = samples[i]
                     download_sample(sample)
+                    log(10, f"Sample {i + 1}/{len(samples)}")
 
 
 if __name__ == "__main__":

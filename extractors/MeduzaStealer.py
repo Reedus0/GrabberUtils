@@ -117,11 +117,16 @@ def MeduzaStealer():
             regex_result.start()) + int.from_bytes(extract_result, "little")
         physical_offset = sample.getPhysicalAddress(virtual_offset + 13)
 
-
         if (extract_result):
-            long_key = base64.b64decode(sample.readASCIIString(physical_offset - 0x40))
-            short_key = base64.b64decode(sample.readASCIIString(physical_offset - 0x10))
-            config = base64.b64decode(sample.readASCIIString(physical_offset))
+            try:
+                long_key = base64.b64decode(
+                    sample.readASCIIString(physical_offset - 0x40))
+                short_key = base64.b64decode(
+                    sample.readASCIIString(physical_offset - 0x10))
+                config = base64.b64decode(
+                    sample.readASCIIString(physical_offset))
+            except ValueError:
+                return ""
 
             generated_key = generate_key(bytes(long_key), bytes(short_key), 0)
             decrypted_config = decrypt_config(bytes(config), generated_key)

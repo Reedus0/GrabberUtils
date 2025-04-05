@@ -46,9 +46,9 @@ def main():
     load_dotenv()
     initLogging(10, os.environ["LOG_PATH"])
 
-    new_samples = input("New samples? (Y/N): ")
+    new_samples = input("New samples? (Y/N/F): ")
 
-    if (new_samples.lower() == "y"):
+    if (new_samples.lower() == "y" or new_samples.lower() == "f"):
         db = DB(
             os.environ["DB_HOST"],
             os.environ["DB_PORT"],
@@ -56,7 +56,13 @@ def main():
             os.environ["DB_PASSWORD"],
             os.environ["DB_DATABASE"],
         )
-        sql = input("Query: ")
+
+        sql = ""
+
+        if (new_samples.lower() == "f"):
+            sql = f"SELECT * FROM sample WHERE malware_family = '{input("Family: ")}' ORDER BY id DESC LIMIT 100;"
+        else:
+            sql = input("Query: ")
 
         samples = db.querySamples(sql)
         print(samples)
@@ -75,7 +81,7 @@ def main():
         break
 
     # workers = [SmokeLoaderId(), ExtractSmokeLoader(os.environ["LIB_PATH"]), SmokeLoader()]
-    workers = [MeduzaStealer()]
+    workers = [njRAT()]
 
     log(10, "Running extractor...")
     total = 0

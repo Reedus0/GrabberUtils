@@ -145,22 +145,23 @@ def ExtractSmokeLoader(lib_path: str):
 
     def decrypt(sample: Sample):
         final_stage = decrypt_final_stage(sample)
+        decompressed_sample = Sample()
+        decompressed_sample.setData(bytearray())
 
         if (not final_stage):
-            return
+            return decompressed_sample
 
         offset, size = final_stage[0], final_stage[1]
 
         xor_key = get_xor_key(sample)
 
         if (not xor_key):
-            return
+            return decompressed_sample
 
         extracted_stage = extract_final_stage(
             sample, xor_key, offset, size)
         decompressed_data = decompress_final_stage(extracted_stage[4:])
 
-        decompressed_sample = Sample()
         decompressed_sample.setData(bytearray(decompressed_data))
 
         return decompressed_sample
