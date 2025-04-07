@@ -8,12 +8,12 @@ rule win32_dotnet_loader {
         yarahub_license = "CC BY-NC 4.0"
         yarahub_rule_matching_tlp = "TLP:AMBER"
         yarahub_rule_sharing_tlp = "TLP:AMBER"
-        version = "3"
+        version = "4"
     strings:
         $re_0 = /https?:\/\// wide
         $string_1 = "HttpClient"
         $string_2 = "GetByteArrayAsync"
         $string_3 = "GetAsync"
     condition:
-        uint16(0) == 0x5A4D and $re_0 and 2 of ($string_*)
+        uint16(0) == 0x5A4D and $re_0 and 2 of ($string_*) and filesize < 5MB
 }

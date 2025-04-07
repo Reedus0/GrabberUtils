@@ -26,11 +26,12 @@ from Grabber.download.vx import VXDownloader
 
 
 def download_sample(hash):
-    abuse = AbuseDownloader(os.environ["ABUSE_API_KEY"])
-    yarify = YarifyDownloader(os.environ["ABUSE_API_KEY"])
-    vx = VXDownloader(os.environ["VX_API_KEY"])
 
-    downloaders = [abuse, yarify, vx]
+    downloaders = [
+        YarifyDownloader(os.environ["ABUSE_API_KEY"]),
+        AbuseDownloader(os.environ["ABUSE_API_KEY"]),
+        VXDownloader(os.environ["VX_API_KEY"])
+    ]
 
     for downloader in downloaders:
         downloader.download(hash)
@@ -81,7 +82,7 @@ def main():
         break
 
     # workers = [SmokeLoaderId(), ExtractSmokeLoader(os.environ["LIB_PATH"]), SmokeLoader()]
-    workers = [njRAT()]
+    workers = [DotnetLoader()]
 
     log(10, "Running extractor...")
     total = 0
