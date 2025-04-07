@@ -33,14 +33,23 @@ def download_sample(hash):
         VXDownloader(os.environ["VX_API_KEY"])
     ]
 
-    for downloader in downloaders:
-        downloader.download(hash)
-        result = downloader.getResult()
-        if (result):
-            with open(os.environ["SAMPLE_PATH"] + "/" + hash, "wb") as sample:
-                sample.write(result)
-                sample.close()
-            break
+    try:
+        for downloader in downloaders:
+            downloader.download(hash)
+            result = downloader.getResult()
+            if (result):
+                with open(os.environ["SAMPLE_PATH"] + "/" + hash, "wb") as sample:
+                    sample.write(result)
+                    sample.close()
+                return True
+        else:
+            log(20, "Failed to download sample...")
+            return False
+
+    except Exception as e:
+        log(20, str(e))
+        return False
+
 
 
 def main():

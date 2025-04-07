@@ -20,16 +20,23 @@ def download_sample(hash):
         VXDownloader(os.environ["VX_API_KEY"])
     ]
 
-    for downloader in downloaders:
-        downloader.download(hash)
-        result = downloader.getResult()
-        if (result):
-            with open(os.environ["SAMPLE_PATH"] + "/" + hash, "wb") as sample:
-                sample.write(result)
-                sample.close()
-            break
-    else:
-        log(10, "Failed to download sample...")
+    try:
+        for downloader in downloaders:
+            downloader.download(hash)
+            result = downloader.getResult()
+            if (result):
+                with open(os.environ["SAMPLE_PATH"] + "/" + hash, "wb") as sample:
+                    sample.write(result)
+                    sample.close()
+                return True
+        else:
+            log(20, "Failed to download sample...")
+            return False
+
+    except Exception as e:
+        log(20, str(e))
+        return False
+
 
 
 def main():
@@ -41,7 +48,7 @@ def main():
         if (mode.lower() == "h"):
             hash = input("Hash: ")
             download_sample(hash)
-        elif (mode.lower() == "y" or mode.lower() == "f"):
+        elif (mode.lower() == "q" or mode.lower() == "f"):
             db = DB(
                 os.environ["DB_HOST"],
                 os.environ["DB_PORT"],

@@ -77,23 +77,21 @@ def main():
                 query = input("Interesting? (Y/N)")
 
                 urls = set(all_results[sample]["urls"])
-                interesting = set(json_data["interesting"])
-                common = set(json_data["common"])
 
                 if (query.lower() == "y"):
-                    unique = urls - interesting
-                    json_data["interesting"] += list(unique)
+                    for url in list(urls):
+                        try:
+                            json_data["interesting"][url] += 1
+                        except KeyError:
+                            json_data["interesting"][url] = 1
                 else:
-                    unique = urls - common
-                    json_data["common"] += list(unique)
+                    for url in list(urls):
+                        try:
+                            json_data["common"][url] += 1
+                        except KeyError:
+                            json_data["common"][url] = 1
 
                 json_data["complete"].append(sample)
-
-            interesting = set(json_data["interesting"])
-            common = set(json_data["common"])
-
-            new_interesting = interesting - common
-            json_data["interesting"] = list(new_interesting)
 
         finally:
             json.dump(json_data, file)

@@ -24,8 +24,6 @@ from Grabber.logs.logger import log, initLogging
 
 
 def download_sample(hash):
-    if (os.path.exists(os.environ["SAMPLE_PATH"] + "/" + hash)):
-        return
 
     downloaders = [
         YarifyDownloader(os.environ["ABUSE_API_KEY"]),
@@ -33,16 +31,22 @@ def download_sample(hash):
         VXDownloader(os.environ["VX_API_KEY"])
     ]
 
-    for downloader in downloaders:
-        downloader.download(hash)
-        result = downloader.getResult()
-        if (result):
-            with open(os.environ["SAMPLE_PATH"] + "/" + hash, "wb") as sample:
-                sample.write(result)
-                sample.close()
-            break
-    else:
-        log(10, "Failed to download sample...")
+    try:
+        for downloader in downloaders:
+            downloader.download(hash)
+            result = downloader.getResult()
+            if (result):
+                with open(os.environ["SAMPLE_PATH"] + "/" + hash, "wb") as sample:
+                    sample.write(result)
+                    sample.close()
+                return True
+        else:
+            log(20, "Failed to download sample...")
+            return False
+
+    except Exception as e:
+        log(20, str(e))
+        return False
 
 
 def collect_samples():
@@ -97,8 +101,8 @@ def yara_scan_sample(sample):
 
     try:
         if (not sample["malware_family"]):
-            download_sample(sample["sha256_hash"])
-            result = scanner.scan(sample)
+            if (download_sample(sample["sha256_hash"])):
+                result = scanner.scan(sample)
     except Exception as e:
         log(20, str(e))
 
@@ -119,8 +123,8 @@ def config_extract_sample(sample):
 
     try:
         if (sample["malware_family"] in config.keys()):
-            download_sample(sample["sha256_hash"])
-            result = scanner.scan(sample)
+            if (download_sample(sample["sha256_hash"])):
+                result = scanner.scan(sample)
         try:
             os.remove(os.environ["SAMPLE_PATH"] +
                       "/" + sample["sha256_hash"])
