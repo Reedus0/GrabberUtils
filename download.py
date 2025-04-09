@@ -38,7 +38,6 @@ def download_sample(hash):
         return False
 
 
-
 def main():
     load_dotenv()
     initLogging(0, os.environ["LOG_PATH"])

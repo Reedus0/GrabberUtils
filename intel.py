@@ -115,7 +115,7 @@ def config_extract_sample(sample):
     config = {
         "win32_dotnet_loader": [DotnetLoader()],
         "win32_xworm": [XWorm()],
-        "win32_njRAT": [njRAT()],
+        "win32_njrat": [njRAT()],
         "win32_younglotus": [YoungLotus()],
         "win32_tofsee": [Tofsee()]
     }

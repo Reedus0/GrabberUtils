@@ -24,33 +24,6 @@ def main():
     workers = [DotnetLoader()]
 
     log(10, "Running extractor...")
-    total = 0
-
-    all_results = {}
-
-    for file in files:
-        sample = Sample(os.environ["SAMPLE_PATH"] + "/" + file)
-        log(10, "Sample: " + file)
-
-        result = {}
-
-        for worker in workers:
-            if (isinstance(worker, Processor)):
-                worker.processSample(sample)
-                sample = worker.getResult()
-            if (isinstance(worker, Extractor)):
-                worker.extract(sample)
-                result = {**result, **worker.getResult()}
-
-        print(result)
-        all_results[file] = result
-
-        if ([x for x in result.values() if x]):
-            total += 1
-
-    print("Result: ")
-    print(f"{total}/{len(files)} ({total / len(files) * 100}%)")
-    print("")
 
     json_data = {}
 
@@ -60,41 +33,55 @@ def main():
     print(
         f"Currently: {len(json_data["interesting"])} interesing, {len(json_data["common"])} common")
 
-    with open("stats.json", "r+") as file:
-        file.truncate(0)
+    with open("stats.json", "r+") as out_file:
+        out_file.truncate(0)
         try:
-            for sample in all_results.keys():
 
-                if (sample in json_data["complete"]):
+            for file in files:
+
+                if (file in json_data["complete"]):
                     continue
 
-                if (not len(all_results[sample]["urls"])):
-                    json_data["complete"].append(sample)
+                sample = Sample(os.environ["SAMPLE_PATH"] + "/" + file)
+                log(10, "Sample: " + file)
+
+                result = {}
+
+                for worker in workers:
+                    if (isinstance(worker, Processor)):
+                        worker.processSample(sample)
+                        sample = worker.getResult()
+                    if (isinstance(worker, Extractor)):
+                        worker.extract(sample)
+                        result = {**result, **worker.getResult()}
+
+                if (not len(result["urls"])):
+                    json_data["complete"].append(file)
                     continue
 
-                print(all_results[sample])
+                for url in result["urls"]:
+                    if (url in json_data["interesting"].keys()):
+                        json_data["interesting"][url] += 1
+                        continue
 
-                query = input("Interesting? (Y/N)")
+                    if (url in json_data["common"].keys()):
+                        json_data["common"][url] += 1
+                        continue
 
-                urls = set(all_results[sample]["urls"])
+                    print(url)
+                    query = input("Interesting? (Y/N)")
 
-                if (query.lower() == "y"):
-                    for url in list(urls):
-                        try:
-                            json_data["interesting"][url] += 1
-                        except KeyError:
-                            json_data["interesting"][url] = 1
-                else:
-                    for url in list(urls):
-                        try:
-                            json_data["common"][url] += 1
-                        except KeyError:
-                            json_data["common"][url] = 1
+                    if (query.lower() == "y"):
+                        json_data["interesting"][url] = 1
+                    else:
+                        json_data["common"][url] = 1
 
-                json_data["complete"].append(sample)
+                json_data["complete"].append(file)
 
         finally:
-            json.dump(json_data, file)
+            json.dump(json_data, out_file)
+
+        # WITH tb AS (SELECT id, sha256_hash, row_number() OVER (ORDER BY id) as row FROM sample WHERE malware_family = 'win32_dotnet_loader') SELECT id, sha256_hash FROM tb WHERE tb.row BETWEEN 1000 AND 2000;
 
 
 if __name__ == "__main__":
