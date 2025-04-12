@@ -69,7 +69,7 @@ def main():
                         continue
 
                     print(url)
-                    query = input("Interesting? (Y/N)")
+                    query = input("Interesting? (Y/N): ")
 
                     if (query.lower() == "y"):
                         json_data["interesting"][url] = 1
