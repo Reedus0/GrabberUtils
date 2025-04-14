@@ -13,7 +13,7 @@ from Grabber.download.abuse import AbuseDownloader
 from Grabber.download.yarify import YarifyDownloader
 from Grabber.download.vx import VXDownloader
 
-from extractors.DotnetLoader import DotnetLoader
+from extractors.PEUrls import PEUrls
 from extractors.XWorm import XWorm
 from extractors.njRAT import njRAT
 from extractors.YoungLotus import YoungLotus
@@ -113,13 +113,13 @@ def config_extract_sample(sample):
     result = sample
 
     config = {
-        "win32_dotnet_loader": [DotnetLoader()],
+        "win32_dotnet_loader": [PEUrls()],
         "win32_xworm": [XWorm()],
         "win32_njrat": [njRAT()],
         "win32_younglotus": [YoungLotus()],
         "win32_tofsee": [Tofsee()]
     }
-    
+
     scanner = ConfigScanner(os.environ["SAMPLE_PATH"], config)
 
     try:

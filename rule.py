@@ -9,7 +9,7 @@ from extractors.XWorm import XWorm
 from extractors.SmokeLoader import SmokeLoader, ExtractSmokeLoader, SmokeLoaderId
 from extractors.njRAT import njRAT
 from extractors.PureCrypterLoader import PureCrypterLoader
-from extractors.DotnetLoader import DotnetLoader
+from extractors.PEUrls import PEUrls
 from extractors.YoungLotus import YoungLotus
 from extractors.AgentTesla import AgentTesla, XORAgentTesla
 from extractors.Tofsee import Tofsee
@@ -90,7 +90,7 @@ def main():
         break
 
     # workers = [SmokeLoaderId(), ExtractSmokeLoader(os.environ["LIB_PATH"]), SmokeLoader()]
-    workers = [DotnetLoader()]
+    workers = [PEUrls()]
 
     log(10, "Running extractor...")
     total = 0

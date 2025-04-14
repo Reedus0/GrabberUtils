@@ -7,7 +7,7 @@ from extractors.LeprechaunVNC import LeprechaunVNC
 from extractors.XWorm import XWorm
 from extractors.YoungLotus import YoungLotus
 from extractors.njRAT import njRAT
-from extractors.DotnetLoader import DotnetLoader
+from extractors.PEUrls import PEUrls
 from extractors.PureCrypterLoader import PureCrypterLoader
 from extractors.Tofsee import Tofsee
 
@@ -18,7 +18,7 @@ def main():
     load_dotenv()
     initLogging(0, os.environ["LOG_PATH"])
 
-    extractors = [XWorm(), YoungLotus(), njRAT(), LeprechaunVNC(), DotnetLoader(), PureCrypterLoader(), Tofsee()]
+    extractors = [XWorm(), YoungLotus(), njRAT(), LeprechaunVNC(), PEUrls(), PureCrypterLoader(), Tofsee()]
     chosen_extractor = None
 
     for extractor in extractors:
