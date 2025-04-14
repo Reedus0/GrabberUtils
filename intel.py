@@ -8,6 +8,7 @@ from Grabber.collectors.ha import HybridAnalysisCollector
 from Grabber.scanners.virustotal import VirusTotalScanner
 from Grabber.scanners.yara import YaraScanner
 from Grabber.scanners.config import ConfigScanner
+from Grabber.scanners.urls import UrlsScanner
 
 from Grabber.download.abuse import AbuseDownloader
 from Grabber.download.yarify import YarifyDownloader
@@ -93,7 +94,6 @@ def delete_existing_samples(raw_samples):
 
 
 def yara_scan_sample(sample):
-
     result = sample
 
     scanner = YaraScanner(
@@ -109,11 +109,29 @@ def yara_scan_sample(sample):
     return result
 
 
+def extract_urls(sample):
+    result = sample
+
+    scanner = UrlsScanner(os.environ["SAMPLE_PATH"], PEUrls())
+
+    try:
+        if (download_sample(sample["sha256_hash"])):
+            result = scanner.scan(sample)
+        try:
+            os.remove(os.environ["SAMPLE_PATH"] +
+                      "/" + sample["sha256_hash"])
+        except FileNotFoundError:
+            pass
+    except Exception as e:
+        log(20, str(e))
+
+    return result
+
+
 def config_extract_sample(sample):
     result = sample
 
     config = {
-        "win32_dotnet_loader": [PEUrls()],
         "win32_xworm": [XWorm()],
         "win32_njrat": [njRAT()],
         "win32_younglotus": [YoungLotus()],
@@ -138,7 +156,6 @@ def config_extract_sample(sample):
 
 
 def virustotal_scan_sample(sample):
-
     result = sample
 
     scanner = VirusTotalScanner(os.environ["VIRUSTOTAL_API_LEY"])
@@ -184,6 +201,7 @@ def main():
     for sample in filtered_samples:
 
         sample = yara_scan_sample(sample)
+        sample = extract_urls(sample)
         sample = config_extract_sample(sample)
         sample = virustotal_scan_sample(sample)
 
