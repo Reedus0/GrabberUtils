@@ -1,6 +1,6 @@
 import os
 
-from Grabber.logs.logger import initLogging
+from Grabber.logs.logger import initLogging, log
 from Grabber.config.sample import Sample
 
 from extractors.LeprechaunVNC import LeprechaunVNC
@@ -18,7 +18,8 @@ def main():
     load_dotenv()
     initLogging(0, os.environ["LOG_PATH"])
 
-    extractors = [XWorm(), YoungLotus(), njRAT(), LeprechaunVNC(), PEUrls(), PureCrypterLoader(), Tofsee()]
+    extractors = [XWorm(), YoungLotus(), njRAT(), LeprechaunVNC(),
+                  PEUrls(), PureCrypterLoader(), Tofsee()]
     chosen_extractor = None
 
     for extractor in extractors:
@@ -40,4 +41,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        log(30, str(e))
+        exit(1)

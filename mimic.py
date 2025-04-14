@@ -6,7 +6,7 @@ from mimics.SmokeLoader import SmokeLoaderMimic
 from mimics.PureCrypterLoader import PureCrypterLoaderMimic
 
 
-from Grabber.logs.logger import initLogging
+from Grabber.logs.logger import initLogging, log
 
 
 def main():
@@ -20,7 +20,8 @@ def main():
     #     "rc4_decrypt_key": 2796787680
     # }
 
-    config = {'url': 'http://161.248.239.119/ADOLF/Tympfcnhbde.mp3', 'key': '', 'iv': '', 'algorithm': 'RC2'}
+    config = {'url': 'http://161.248.239.119/ADOLF/Tympfcnhbde.mp3',
+              'key': '', 'iv': '', 'algorithm': 'RC2'}
 
     mimic = SmokeLoaderMimic(config, os.environ["SAMPLE_PATH"])
     if (mimic.validateConfig()):
@@ -28,4 +29,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        log(30, str(e))
+        exit(1)
