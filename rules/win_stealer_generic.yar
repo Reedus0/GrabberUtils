@@ -8,7 +8,7 @@ rule win_stealer_generic {
         yarahub_license = "CC BY-NC 4.0"
         yarahub_rule_matching_tlp = "TLP:AMBER"
         yarahub_rule_sharing_tlp = "TLP:AMBER"
-        version = "2"
+        version = "3"
     strings:
         $stealer = "stealer" ascii wide
         $tdata = "tdata" ascii wide
@@ -22,5 +22,5 @@ rule win_stealer_generic {
         $discord = "discord\\Local Storage\\leveldb\\" ascii wide
         $run = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run" ascii wide
     condition:
-        uint16(0) == 0x5A4D and ($stealer or 3 of them)
+        uint16(0) == 0x5A4D and ($stealer or 4 of them)
 }

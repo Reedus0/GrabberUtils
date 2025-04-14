@@ -119,6 +119,7 @@ def config_extract_sample(sample):
         "win32_younglotus": [YoungLotus()],
         "win32_tofsee": [Tofsee()]
     }
+    
     scanner = ConfigScanner(os.environ["SAMPLE_PATH"], config)
 
     try:
