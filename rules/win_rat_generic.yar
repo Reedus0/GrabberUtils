@@ -8,14 +8,14 @@ rule win_rat_generic {
         yarahub_license = "CC BY-NC 4.0"
         yarahub_rule_matching_tlp = "TLP:AMBER"
         yarahub_rule_sharing_tlp = "TLP:AMBER"
-        version = "1"
+        version = "3"
     strings:
-        $rat = "RAT" ascii wide nocase
+        $rat = "RAT" ascii wide
         $runas = "runas" ascii wide
         $shell = "shell\\open\\command" ascii wide
         $run = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run" ascii wide
         $services = "SYSTEM\\CurrentControlSet\\Services" ascii wide
-        $winsta0 = "winsta0\\default" ascii wide
+        $winsta0 = "winsta0" ascii wide
         $cmd_exe = "cmd.exe /c" ascii wide
         $cmd = "cmd /c" ascii wide
         $shell_execute = "ShellExecute" ascii

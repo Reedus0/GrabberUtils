@@ -8,9 +8,9 @@ rule win_stealer_generic {
         yarahub_license = "CC BY-NC 4.0"
         yarahub_rule_matching_tlp = "TLP:AMBER"
         yarahub_rule_sharing_tlp = "TLP:AMBER"
-        version = "3"
+        version = "4"
     strings:
-        $stealer = "stealer" ascii wide
+        $stealer = "stealer" ascii wide nocase
         $tdata = "tdata" ascii wide
         $wallet = "wallet" ascii wide
         $chrome = "chrome" ascii wide

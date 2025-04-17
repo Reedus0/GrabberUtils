@@ -9,14 +9,14 @@ rule win64_valley_rat {
         yarahub_rule_matching_tlp = "TLP:AMBER"
         yarahub_rule_sharing_tlp = "TLP:AMBER"
         malpedia_family = "win.valley_rat"
-        version = "1"
+        version = "3"
     strings:
-        $string_0 = { ( 70 | 6F | 74 ) 00 ( 31 | 32 | 33 ) 00 3A 00 00 00 }
-        $string_1 = "Windows\\System32\\tracerpt.exe"
-        $string_2 = "denglupeizhi"
-        $string_3 = "[RO] %ld bytes"
-        $string_4 = "[RI] %d bytes"
-        $string_5 = "!analyze -v"
+        $string_0 = "CKernelManager"
+        $string_1 = "CUdpSocket"
+        $string_2 = "CManager"
+        $string_3 = "CTcpSocket"
+        $string_4 = "USER32.DLL" wide
+        $string_5 = "winsta0"
     condition:
-        uint16(0) == 0x5A4D and #string_0 >= 4 and 3 of them
+        uint16(0) == 0x5A4D and 5 of them
 }
