@@ -53,7 +53,7 @@ def download_sample(hash):
 def collect_samples():
     raw_samples = []
     collectors = [
-        YarifyCollector(os.environ["ABUSE_API_KEY"], 50),
+        YarifyCollector(os.environ["ABUSE_API_KEY"], 100),
         AbuseCollector(os.environ["ABUSE_API_KEY"]),
         HybridAnalysisCollector(os.environ["HYBRID_ANALYSIS_API_KEY"])
     ]
