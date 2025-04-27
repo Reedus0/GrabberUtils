@@ -61,8 +61,12 @@ def collect_samples():
     log(10, "Collecting samples...")
 
     for collector in collectors:
-        collector.collect()
-        raw_samples += collector.getResult()
+        try:
+            collector.collect()
+            raw_samples += collector.getResult()
+        except Exception as e:
+            log(20, str(e))
+            continue
 
     log(10, "Successfully collected " + str(len(raw_samples)) + " samples!")
 
