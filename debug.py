@@ -24,7 +24,7 @@ def main():
     name = sys.argv[1]
     debugger = Debugger(os.environ["SAMPLE_PATH"] + "/" + name)
 
-    debugger.addBreakpoint("kernel32", "lstrcmpW", breakpoint)
+    debugger.addBreakpoint("kernel32", "GetCurrentProcess", breakpoint)
     debugger.run()
 
 
