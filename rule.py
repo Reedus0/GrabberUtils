@@ -90,7 +90,7 @@ def main():
         break
 
     # workers = [SmokeLoaderId(), ExtractSmokeLoader(os.environ["LIB_PATH"]), SmokeLoader()]
-    workers = [YoungLotus()]
+    workers = [PEUrls()]
 
     log(10, "Running extractor...")
     total = 0
