@@ -8,9 +8,8 @@ rule win_rat_generic {
         yarahub_license = "CC BY-NC 4.0"
         yarahub_rule_matching_tlp = "TLP:AMBER"
         yarahub_rule_sharing_tlp = "TLP:AMBER"
-        version = "3"
+        version = "5"
     strings:
-        $rat = "RAT" ascii wide
         $runas = "runas" ascii wide
         $shell = "shell\\open\\command" ascii wide
         $run = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run" ascii wide
@@ -21,5 +20,5 @@ rule win_rat_generic {
         $shell_execute = "ShellExecute" ascii
         $echo = "@echo off" ascii wide 
     condition:
-        uint16(0) == 0x5A4D and (($rat and 2 of them) or 4 of them)
+        uint16(0) == 0x5A4D and (4 of them) and filesize < 10MB
 }
