@@ -28,7 +28,8 @@ def main():
             if (response_json["query_status"] == "ok"):
                 log(10, f"Uploaded rule {rule}")
             else:
-                log(20, f"Failed to upload rule {rule}")
+                log(20,
+                    f"Failed to upload rule {rule}: {response_json["data"]}")
 
 
 if __name__ == "__main__":
