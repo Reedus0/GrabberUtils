@@ -18,6 +18,7 @@ def PEUrls():
 
         for url in match:
             url = url.decode()
+            url = url.replace("\x00", "")
             splited = url.split("http")[1:]
             for link in splited:
                 result.append("http" + link)
