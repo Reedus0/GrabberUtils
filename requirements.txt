@@ -1,1 +1,3 @@
 Grabber
+psycopg2
+pyzipper
